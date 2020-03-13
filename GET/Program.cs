@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace GET
 {
@@ -14,6 +14,7 @@ namespace GET
         static void Main()
         {
             Application.EnableVisualStyles();
+            //Application.ThreadExit += new EventHandler((object sender,EventArgs e) => {Process.Start(Application.ExecutablePath);});
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
         }

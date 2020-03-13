@@ -5,13 +5,17 @@ using System.IO;
 using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Collections.Generic;
 namespace GET
 {
     public partial class Form1 : Form
     {
         public int from;
         public int to;
+        public bool running = true ;
+        public Thread clear;
         public TaskFactory tf;
+        public List<Task> tasks;
         public int NumofBit;
         public char[] password;
         public DirectoryEntry user = new DirectoryEntry("WinNT://" + Environment.MachineName + ",computer").Children.Find(Environment.UserName, "user");
@@ -27,7 +31,21 @@ namespace GET
                 else
                 {
                     string p = new string(password);
-                    tf.StartNew(TryPassword, p);                                 
+                   tasks.Add(tf.StartNew(TryPassword, p));                                 
+                }
+            }
+        }
+        public void ClearTask(){
+            while (running )
+            {
+                for (int i = 0; i < tasks.Count; i++)
+                {
+                    Task t = tasks[i];
+                    if (t.IsCompleted)
+                    {
+                        tasks.Remove(t);
+                        t.Dispose();
+                    }
                 }
             }
         }
@@ -45,6 +63,7 @@ namespace GET
             StreamWriter f = new StreamWriter(Application.StartupPath + "/result.txt");
             f.Write(p);
             f.Close();
+            running = false;
             Application.Exit();
         }
 
@@ -53,6 +72,8 @@ namespace GET
             InitializeComponent();
             ThreadPool.SetMaxThreads(32000, Environment.ProcessorCount);
             tf = new TaskFactory();
+            tasks = new List<Task>();
+            clear = new Thread(new ThreadStart(ClearTask));
         }
 
         private void Patch_Click(object sender, EventArgs e)
@@ -62,6 +83,7 @@ namespace GET
             Hide();
             password = new char[(int)Bits.Value];
             NumofBit = (int)Bits.Value - 1;
+            clear.Start();
             GetPassword(0);
         }
     }
