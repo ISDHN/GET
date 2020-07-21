@@ -36,16 +36,24 @@ namespace GET
             }
         }
         public void ClearTask(){
-            while (running )
+            while (running)
             {
                 for (int i = 0; i < tasks.Count; i++)
                 {
-                    Task t = tasks[i];
-                    if (t.IsCompleted)
-                    {
-                        tasks.Remove(t);
-                        t.Dispose();
-                    }
+                    if (!running) break;
+                        Task t = tasks[i];
+                        try
+                        {
+                            if (t.IsCompleted)
+                            {
+                                tasks.Remove(t);
+                                t.Dispose();
+                            }
+                        }
+                        catch
+                        {
+                            i--;
+                        }
                 }
             }
         }
@@ -84,7 +92,7 @@ namespace GET
             password = new char[(int)Bits.Value];
             NumofBit = (int)Bits.Value - 1;
             clear.Start();
-            GetPassword(0);
+            GetPassword(0);          
         }
     }
 }
